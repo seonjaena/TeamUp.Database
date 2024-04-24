@@ -1,0 +1,17 @@
+services:
+    mariadb:
+        image: mariadb:10.11.6-jammy
+        container_name: teamup-main-db
+        restart: unless-stopped
+        ports:
+          - 3306:3306
+        environment:
+          TZ: Asia/Seoul
+        volumes:
+          - ./mount/var-lib-mysql:/var/lib/mysql
+          - ./mount/config:/etc/mysql/conf.d
+          - ./mount/initdb.d/V000_INIT_DB.sql:/docker-entrypoint-initdb.d/V000_INIT_DB.sql
+        env_file: .env
+        command:
+          - --character-set-server=utf8mb4
+          - --collation-server=utf8mb4_unicode_ci
