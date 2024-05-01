@@ -1,5 +1,5 @@
 services:
-    mariadb:
+    mariadb_main:
         image: mariadb:10.11.6-jammy
         container_name: teamup-main-db
         restart: unless-stopped
@@ -7,21 +7,44 @@ services:
           - 3306:3306
         environment:
           TZ: Asia/Seoul
+          MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+          MYSQL_USER: ${MAIN_MYSQL_USER}
+          MYSQL_PASSWORD: ${MAIN_MYSQL_PASSWORD}
+          MYSQL_DATABASE: ${MAIN_MYSQL_DATABASE}
         volumes:
-          - ./mariadb-mount/var-lib-mysql:/var/lib/mysql
-          - ./mariadb-mount/config:/etc/mysql/conf.d
-          - ./mariadb-mount/initdb.d/V000_INIT_DB.sql:/docker-entrypoint-initdb.d/V000_INIT_DB.sql
-        env_file: .env
+          - ./mariadb-main-mount/var-lib-mysql:/var/lib/mysql
+          - ./mariadb-main-mount/config:/etc/mysql/conf.d
+          - ./mariadb-main-mount/initdb.d/V000_INIT_DB.sql:/docker-entrypoint-initdb.d/V000_INIT_DB.sql
         command:
           - --character-set-server=utf8mb4
           - --collation-server=utf8mb4_unicode_ci
-    redis:  
+
+    mariadb_test:
+        image: mariadb:10.11.6-jammy
+        container_name: teamup-test-db
+        restart: unless-stopped
+        ports:
+          - 3307:3306
+        environment:
+          TZ: Asia/Seoul
+          MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+          MYSQL_USER: ${TEST_MYSQL_USER}
+          MYSQL_PASSWORD: ${TEST_MYSQL_PASSWORD}
+          MYSQL_DATABASE: ${TEST_MYSQL_DATABASE}
+        volumes:
+          - ./mariadb-test-mount/var-lib-mysql:/var/lib/mysql
+          - ./mariadb-test-mount/config:/etc/mysql/conf.d
+          - ./mariadb-test-mount/initdb.d/V000_INIT_DB.sql:/docker-entrypoint-initdb.d/V000_INIT_DB.sql
+        command:
+          - --character-set-server=utf8mb4
+          - --collation-server=utf8mb4_unicode_ci
+
+    redis_main:  
         image: redis:7.0.15
-        container_name: teamup-redis
+        container_name: teamup-main-redis
         ports:
           - 6379:6379
-        env_file: .env
-        command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
+        command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${MAIN_REDIS_PASSWORD}"]
         volumes:
-          - ./redis-mount/data:/data
-          - ./redis-mount/conf/redis.conf:/usr/local/etc/redis/redis.conf
+          - ./redis-main-mount/data:/data
+          - ./redis-main-mount/conf/redis.conf:/usr/local/etc/redis/redis.conf
