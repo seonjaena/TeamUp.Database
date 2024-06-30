@@ -19,4 +19,4 @@ for sql_file in $DIRECTORY/*.sql; do
     cat "$sql_file" >> "$TEST_TARGET_FILE"
 done
 
-docker compose --env-file ./db.env up -d
+docker compose --env-file ./.env up -d
